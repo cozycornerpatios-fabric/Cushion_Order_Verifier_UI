@@ -146,4 +146,4 @@ The application automatically extracts and identifies:
 
 ## Additional Documentation
 
-- **Shopify Integration**: Uses your existing endpoint at `https://ziperp-api.vercel.app/`
+- **Shopify Integration**: Uses your existing endpoint at `https://ziperp-api.vercel.app/api/shipment/`

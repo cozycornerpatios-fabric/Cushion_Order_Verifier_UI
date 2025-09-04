@@ -44,7 +44,7 @@ RUNS_ENDPOINT = "https://api.openai.com/v1/threads/{thread_id}/runs"
 WHISPER_ENDPOINT = "https://api.openai.com/v1/audio/transcriptions"  # OpenAI Whisper API
 
 # Shopify API endpoint
-SHOPIFY_ORDER_ENDPOINT = "https://ziperp-api.vercel.app/"
+SHOPIFY_ORDER_ENDPOINT = "https://ziperp-api.vercel.app/api/shipment/"
 
 # Environment variables
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")

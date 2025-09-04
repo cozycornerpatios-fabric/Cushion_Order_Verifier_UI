@@ -4,145 +4,119 @@ This guide will help you set up Shopify integration to automatically pull order 
 
 ## Prerequisites
 
-- A Shopify store (paid plan required for API access)
-- Admin access to your Shopify store
+- Your Shopify order details endpoint is already configured at `https://ziperp-api.vercel.app/api/shipment/`
+- You have valid Shopify order numbers to test with
 - Basic understanding of API integrations
 
-## Step 1: Create a Private App in Shopify
+## Step 1: Verify Your Endpoint
 
-1. **Login to Shopify Admin**
-   - Go to your Shopify admin panel
-   - Navigate to **Apps** → **Manage private apps**
+Your Shopify order details endpoint is already configured and ready to use:
+- **Endpoint URL**: `https://ziperp-api.vercel.app/api/shipment/{orderNumber}`
+- **Method**: GET
+- **Response**: JSON with order details or error message
 
-2. **Create New Private App**
-   - Click **Create a new private app**
-   - Give it a name (e.g., "Cushion Order Verifier")
-   - Add your email as the developer email
+## Step 2: Test the Integration
 
-3. **Configure App Permissions**
-   - **Orders**: Set to **Read access**
-   - **Products**: Set to **Read access**
-   - **Customers**: Set to **Read access** (optional, for customer information)
-   - **Inventory**: Set to **No access** (not needed for order verification)
+1. **Find a Valid Order Number**
+   - Use a real Shopify order number from your system
+   - The endpoint expects numeric order numbers only
 
-4. **Save and Generate Access Token**
-   - Click **Save**
-   - Copy the **Admin API access token** (you'll need this for the `.env` file)
-
-## Step 2: Get Your Shop Name
-
-1. **Find Your Shop Name**
-   - In your Shopify admin, look at the URL
-   - It will be: `https://yourstorename.myshopify.com`
-   - Your shop name is `yourstorename` (without `.myshopify.com`)
-
-## Step 3: Configure Environment Variables
-
-1. **Update Your `.env` File**
-   Add these lines to your `.env` file:
+2. **Test the Endpoint**
    ```bash
-   SHOPIFY_SHOP_NAME=yourstorename
-   SHOPIFY_ACCESS_TOKEN=your_access_token_here
-   SHOPIFY_API_VERSION=2023-10
+   curl "https://ziperp-api.vercel.app/api/shipment/YOUR_ORDER_NUMBER"
    ```
 
-2. **Example `.env` File**
-   ```bash
-   # OpenAI Configuration
-   OPENAI_API_KEY=sk-your-openai-key-here
-   
-   # Shopify Configuration
-   SHOPIFY_SHOP_NAME=mystore
-   SHOPIFY_ACCESS_TOKEN=shpca_your_token_here
-   SHOPIFY_API_VERSION=2023-10
-   ```
+3. **Expected Responses**
+   - **Success**: JSON with order details
+   - **Not Found**: `{"error":"Product properties not found, check for the right order number."}`
+   - **Invalid Input**: `{"error":"Failed to get product properties","details":"invalid input syntax for type bigint: \"test\""}`
 
-## Step 4: Test the Integration
+## Step 3: Test the Application
 
-1. **Restart Your Application**
+1. **Start Your Application**
    ```bash
    python main.py
    ```
 
-2. **Test with a Real Order ID**
-   - Go to your Shopify admin → Orders
-   - Find an order and copy its Order ID (the number, not the order number)
-   - In the app, select "Pull from Shopify" and enter the Order ID
+2. **Test with a Real Order Number**
+   - Use a valid Shopify order number from your system
+   - In the app, select "Shopify" as order source
+   - Enter the order number (numeric only)
    - Click "Verify Order"
 
-## Finding Order IDs in Shopify
+## Finding Order Numbers
 
-### Method 1: From Admin Panel
+### Method 1: From Shopify Admin
 1. Go to **Orders** in your Shopify admin
 2. Click on any order
-3. Look at the URL: `https://yourstore.myshopify.com/admin/orders/1234567890`
-4. The number at the end is the Order ID: `1234567890`
+3. Look for the **Order Number** (usually displayed prominently)
+4. This is the numeric value you need for the API
 
 ### Method 2: From Order Details
 1. Open any order in your admin
-2. Look for **Order ID** in the order information
-3. This is the numeric ID you need
+2. Look for **Order Number** in the order information
+3. This is the numeric ID you need for the endpoint
 
 ### Method 3: From Order Export
 1. Go to **Orders** → **Export**
 2. Export orders as CSV
-3. Look for the **Order ID** column
+3. Look for the **Order Number** column
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **"Shopify credentials not configured"**
-   - Check that `SHOPIFY_SHOP_NAME` and `SHOPIFY_ACCESS_TOKEN` are in your `.env` file
-   - Restart the application after updating `.env`
-
-2. **"Order not found in Shopify"**
-   - Verify the Order ID exists in your store
-   - Make sure you're using the Order ID, not the Order Number
+1. **"Order not found"**
+   - Verify the order number exists in your Shopify system
+   - Make sure you're using the correct numeric order number
    - Check that the order is not archived or deleted
 
-3. **"Unauthorized access to Shopify API"**
-   - Verify your access token is correct
-   - Check that the private app is still active
-   - Ensure the app hasn't been deleted or deactivated
+2. **"Invalid input syntax for type bigint"**
+   - Ensure you're entering only numeric values
+   - Remove any letters, spaces, or special characters
+   - The endpoint only accepts numeric order numbers
 
-4. **"Forbidden access to Shopify API"**
-   - Check your private app permissions
-   - Ensure you have **Read access** to Orders and Products
-   - Try recreating the private app with proper permissions
+3. **"Product properties not found"**
+   - The order number exists but has no product details
+   - Try with a different order number
+   - Check if the order has been processed correctly in Shopify
+
+4. **"Request failed" or "Connection error"**
+   - Check your internet connection
+   - Verify the endpoint URL is accessible
+   - Try again after a few moments
 
 ### API Rate Limits
 
-- Shopify has rate limits for API calls
-- Standard plan: 2 requests per second
-- Shopify Plus: 4 requests per second
-- If you hit rate limits, wait a moment and try again
+- Your endpoint may have rate limits
+- If you encounter rate limiting, wait a moment and try again
+- Contact your API provider if you need higher rate limits
 
 ## Security Best Practices
 
-1. **Keep Access Tokens Secure**
-   - Never commit your `.env` file to version control
-   - Use environment variables in production
-   - Rotate access tokens regularly
+1. **Keep API Endpoints Secure**
+   - Never expose sensitive order data in logs
+   - Use HTTPS for all API communications
+   - Monitor API usage and access patterns
 
-2. **Minimal Permissions**
-   - Only grant the permissions you need
-   - Read access is sufficient for order verification
-   - Avoid write permissions unless necessary
+2. **Data Privacy**
+   - Only access order data you need for verification
+   - Don't store sensitive customer information unnecessarily
+   - Follow data protection regulations
 
-3. **Monitor App Usage**
-   - Check your private apps regularly
-   - Remove unused apps
-   - Monitor API usage in Shopify admin
+3. **Monitor API Usage**
+   - Check API response times and error rates
+   - Monitor for unusual access patterns
+   - Contact your API provider if you notice issues
 
 ## Support
 
 If you encounter issues:
 
 1. Check the application logs for detailed error messages
-2. Verify your Shopify credentials are correct
-3. Test with a simple order ID first
-4. Ensure your Shopify store has API access enabled
+2. Verify your order number is correct and numeric
+3. Test the endpoint directly with curl first
+4. Ensure your API endpoint is accessible and responding
 
 ## Next Steps
 
