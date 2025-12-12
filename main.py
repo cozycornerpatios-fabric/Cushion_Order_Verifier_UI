@@ -8,6 +8,7 @@ import os
 import logging
 import json
 from dotenv import load_dotenv
+from urllib.parse import quote
 
 # Configure logging
 logging.basicConfig(
