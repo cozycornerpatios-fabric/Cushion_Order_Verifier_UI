@@ -43,8 +43,8 @@ MESSAGES_ENDPOINT = "https://api.openai.com/v1/threads/{thread_id}/messages"
 RUNS_ENDPOINT = "https://api.openai.com/v1/threads/{thread_id}/runs"
 WHISPER_ENDPOINT = "https://api.openai.com/v1/audio/transcriptions"  # OpenAI Whisper API
 
-# Shopify API endpoint
-SHOPIFY_ORDER_ENDPOINT = "https://ziperp-api.vercel.app/api/shipment/"
+
+SHOPIFY_ORDER_ENDPOINT = "https://ziperp-api.vercel.app/api/shopify/"
 
 # Environment variables
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -63,7 +63,9 @@ def fetch_shopify_order(order_id: str) -> str:
     """
     try:
         # Construct the full URL with order ID
-        url = f"{SHOPIFY_ORDER_ENDPOINT}{order_id}"
+        encoded_order_id = quote(order_id, safe='')
+        url = f"{SHOPIFY_ORDER_ENDPOINT}{encoded_order_id}"
+        
         
         logger.info(f"Fetching Shopify order from: {url}")
         
